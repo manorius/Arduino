@@ -13,13 +13,13 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 // #include "neopixel.h" // use for local build
 
 // your network name also called SSID
-char ssid[] = "Schmiede";
+char ssid[] = "digitalnihilist";
 // your network password
-char password[] = "D69A13CCEA";
+char password[] = "manolis123456";
 // your network key Index number (needed only for WEP)
 int keyIndex = 0;
 String readString;
-int led = 7;
+int ledState[25][3];
 
 TCPServer server(80);
 
@@ -38,7 +38,21 @@ uint32_t Wheel(byte WheelPos);
 
 void setup()
 {
-    pinMode(led, OUTPUT);
+  ///////////////////////////
+  // INITIALISE LED MATRIX //
+  ///////////////////////////
+  for(int n=0;n<15;n++)
+  {
+    ledState[n][0] = 0;
+    ledState[n][1] = 0;
+    ledState[n][2] = 0;
+  }
+ ///////////////////////
+  // LED STRIP RELATED //
+  ///////////////////////
+  strip.begin();
+  strip.show(); // Initialize all pixels to 'off'
+
   ////////////////////
   // SERVER RELATED //
   ////////////////////
@@ -77,12 +91,7 @@ void setup()
   server.begin();                           // start the web server on port 80
   Serial.println("Webserver started!");
 
-  ///////////////////////
-  // LED STRIP RELATED //
-  ///////////////////////
-  strip.begin();
-  strip.show(); // Initialize all pixels to 'off'
-}
+ }
 void loop()
 {
   /////////////////////
@@ -106,7 +115,15 @@ void loop()
          //if HTTP request has ended
          if (c == '\n') {          
            Serial.println(readString); //print to serial monitor for debuging
-     
+      for(int n = 0;n<25;n++)
+           {
+            if (readString.indexOf("?led"+String(n)) >0){
+                ledState[n][0] = 250;
+                strip.setPixelColor(n, 100,0,0);
+                strip.show();
+           }
+           }
+           
            client.println("HTTP/1.1 200 OK"); //send new page
            client.println("Content-Type: text/html");
            client.println();     
@@ -118,55 +135,29 @@ void loop()
 client.println("<style>");
 client.print("a{\ndisplay:inline-block;\nwidth:10px;\nheight:10px;\nborder:1px solid black;\n}\na.active\n{\nbackground-color:black;\n}");
 client.println("</style>");
-client.println("LED controller");
            client.println("</HEAD>");
            client.println("<BODY>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led0\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led1\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led2\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led3\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led4\"\"></a>");
-client.println("<br>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led5\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led6\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led7\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led8\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led9\"\"></a>");
-client.println("<br>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led10\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led11\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led12\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led13\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led14\"\"></a>");
-client.println("<br>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led15\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led16\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led17\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led18\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led19\"\"></a>");
-client.println("<br>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led20\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led21\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led22\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led23\"\"></a>");
-client.println("<a class=\"\" style=\"background-color:rgb(0,0,0);\" href=\"/?led24\"\"></a>");
-client.println("<br>");           
-         //  client.println("<a href=\"/?button1on\"\">Turn On Blue LED</a>");
+           for(int n = 0;n<25;n++)
+           {
+            
+client.println("<a class=\"\" style=\"background-color:rgb("+String(ledState[n][0])+",0,0);\" href=\"/?led"+String(n)+"\"\" data-ledId=\""+String(n)+"\" ></a>");
+if((n+1)%5==0 && n!=0) client.println("<br>");        
+           }   
+           client.println("<br>");
+           client.println("<input class=\"jscolor {valueElement:null, value:'000000',onFineChange:'setTileColour(this)'}\" >");
+           //client.println("<a href=\"/?button1on\"\">Turn On Blue LED</a>");
            client.println("</BODY>");
+           client.println("<script src=\"https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.0.4/jscolor.min.js\"></script>");
+           client.println("<script>function setTileColour(a){colour=a}for(var classname=document.getElementsByClassName(\"colorTile\"),colour,i=0;i<classname.length;i++)classname[i].addEventListener(\"click\",function(){this.setAttribute(\"style\",\"background-color: #\"+colour)},!1);");
            client.println("</HTML>");
      
            delay(1);
            //stopping client
            client.stop();
            //controls the Arduino if you press the buttons
-          if (readString.indexOf("?led0") >0){
-                strip.setPixelColor(0, 255,0,0);
-                strip.show();
-           }
-           if (readString.indexOf("?led1") >0){
-                strip.setPixelColor(1, 255,0,0);
-                strip.show();
-           }
+          Serial.println(readString);
+         
+         
 //           if (readString.indexOf("?button1off") >0){
 //               digitalWrite(led, LOW);
 //           }
@@ -238,3 +229,12 @@ void printWifiStatus() {
   Serial.print(rssi);
   Serial.println(" dBm");
 }
+
+void storeRGB(int hexcolor,int index){
+
+ledState[index][0] = ( hexcolor >> 16 ) & 0xFF;
+ledState[index][1] = ( hexcolor >> 8 ) & 0xFF;
+ledState[index][2] = hexcolor & 0xFF;
+
+}
+
