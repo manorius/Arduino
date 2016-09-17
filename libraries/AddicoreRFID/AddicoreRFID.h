@@ -45,7 +45,7 @@
 #define AddicoreRFID_h
 
 #include <Arduino.h>
-#include <SPI.h>
+//#include <SPI.h>
 #include <inttypes.h>
 
 //#define	uchar	unsigned char

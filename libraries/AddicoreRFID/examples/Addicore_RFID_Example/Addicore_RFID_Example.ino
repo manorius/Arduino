@@ -3,7 +3,7 @@
 // http://www.addicore.com/RFID-AddiKit-with-RC522-MIFARE-Module-RFID-Cards-p/126.htm
 
 #include <AddicoreRFID.h>
-#include <SPI.h>
+#include <hal_dynalib_spi.h>
 
 #define	uchar	unsigned char
 #define	uint	unsigned int
