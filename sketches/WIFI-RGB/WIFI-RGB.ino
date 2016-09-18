@@ -27,7 +27,7 @@ void printWifiStatus();
 
 // IMPORTANT: Set pixel COUNT, PIN and TYPE
 #define PIXEL_PIN D2
-#define PIXEL_COUNT 30
+#define PIXEL_COUNT 25
 #define PIXEL_TYPE WS2812B
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE);
@@ -41,7 +41,7 @@ void setup()
   ///////////////////////////
   // INITIALISE LED MATRIX //
   ///////////////////////////
-  for(int n=0;n<15;n++)
+  for(int n=0;n<25;n++)
   {
     ledState[n][0] = 0;
     ledState[n][1] = 0;
@@ -92,6 +92,20 @@ void setup()
   Serial.println("Webserver started!");
 
  }
+
+ 
+void storeRGB(String hexcolor,int index){
+
+// Get rid of '#' and convert it to integer
+int number = (int) strtol( hexcolor, NULL, 16);
+
+// Split them up into r, g, b values
+ledState[index][0] = number >> 16;
+ledState[index][1] = number >> 8 & 0xFF;
+ledState[index][2] = number & 0xFF;
+
+}
+
 void loop()
 {
   /////////////////////
@@ -115,14 +129,26 @@ void loop()
          //if HTTP request has ended
          if (c == '\n') {          
            Serial.println(readString); //print to serial monitor for debuging
-      for(int n = 0;n<25;n++)
-           {
-            if (readString.indexOf("?led"+String(n)) >0){
-                ledState[n][0] = 250;
-                strip.setPixelColor(n, 100,0,0);
-                strip.show();
+           
+            if (readString.indexOf("?ledId") >0){
+              int locationOfLed = readString.indexOf("?ledId");
+               int locationOfHex = readString.indexOf("hex=");
+               // IF DELTA LOCATION IS 9 THEN IT'S ONE NUMBER IF 10 THEN TWO NUMBERS
+               int deltaLocation = locationOfHex-locationOfLed;
+               Serial.println(deltaLocation);
+               Serial.println(locationOfHex);
+               Serial.println(locationOfLed);
+               Serial.println(readString.substring(locationOfHex+4, locationOfHex+4+6));
+               String valueOfHex = readString.substring(locationOfHex+4, locationOfHex+4+6);
+               
+               String ledIndex = (deltaLocation==9)? readString.substring(12, 13):readString.substring(12, 14);
+               storeRGB( valueOfHex, atoi(ledIndex) );
+               Serial.println(ledIndex);
+               int ledId=atoi(ledIndex);
+               strip.setPixelColor(ledId, ledState[ledId][0],ledState[ledId][1],ledState[ledId][2]);
+               strip.show();
            }
-           }
+           
            
            client.println("HTTP/1.1 200 OK"); //send new page
            client.println("Content-Type: text/html");
@@ -140,15 +166,18 @@ client.println("</style>");
            for(int n = 0;n<25;n++)
            {
             
-client.println("<a class=\"\" style=\"background-color:rgb("+String(ledState[n][0])+",0,0);\" href=\"/?led"+String(n)+"\"\" data-ledId=\""+String(n)+"\" ></a>");
+client.println("<a class=\"\" style=\"background-color:rgb("+String(ledState[n][0])+",0,0);\" href=\"#\" data-ledId=\""+String(n)+"\" ></a>");
 if((n+1)%5==0 && n!=0) client.println("<br>");        
            }   
            client.println("<br>");
-           client.println("<input class=\"jscolor {valueElement:null, value:'000000',onFineChange:'setTileColour(this)'}\" >");
+           client.println("<input class=\"jscolor {mode:'HVS',valueElement:null, value:'000000',onFineChange:'setTileColour(this)'}\" >");
            //client.println("<a href=\"/?button1on\"\">Turn On Blue LED</a>");
            client.println("</BODY>");
+           client.println("<script   src=\"https://code.jquery.com/jquery-3.1.0.min.js\"   integrity=\"sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=\"   crossorigin=\"anonymous\"></script>");
            client.println("<script src=\"https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.0.4/jscolor.min.js\"></script>");
-           client.println("<script>function setTileColour(a){colour=a}for(var classname=document.getElementsByClassName(\"colorTile\"),colour,i=0;i<classname.length;i++)classname[i].addEventListener(\"click\",function(){this.setAttribute(\"style\",\"background-color: #\"+colour)},!1);");
+           //$.get( "test.php", { name: "John", time: "2pm" } );
+           client.println("<script>var colour=\"000000\";function setTileColour(a){colour=a.toString();}for(var classname=document.getElementsByClassName(\"colorTile\"),colour,i=0;i<classname.length;i++)classname[i].addEventListener(\"click\",function(){this.setAttribute(\"style\",\"background-color: #\"+colour)},!1);</script>");
+           client.println("<script>$(document).ready(function() {$(\"a\").on(\"mouseover\",function(e){console.log(\"clicked\");$(this).css(\"background-color\",colour);$.get( \"/\", { ledId: $(this).attr(\"data-ledId\"), hex: \"\"+window.colour } )})})</script>");
            client.println("</HTML>");
      
            delay(1);
@@ -230,11 +259,4 @@ void printWifiStatus() {
   Serial.println(" dBm");
 }
 
-void storeRGB(int hexcolor,int index){
-
-ledState[index][0] = ( hexcolor >> 16 ) & 0xFF;
-ledState[index][1] = ( hexcolor >> 8 ) & 0xFF;
-ledState[index][2] = hexcolor & 0xFF;
-
-}
 
