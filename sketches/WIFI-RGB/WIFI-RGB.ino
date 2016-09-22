@@ -158,9 +158,9 @@ void loop()
            client.println("<meta name='apple-mobile-web-app-capable' content='yes' />");           client.println("<meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />");
 //           client.println("<link rel='stylesheet' type='text/css' href='http://randomnerdtutorials.com/ethernetcss.css' />");
 //           client.println("<TITLE>Random Nerd Tutorials Project</TITLE>");
-client.println("<style>");
-client.print("a{\ndisplay:inline-block;\nwidth:10px;\nheight:10px;\nborder:1px solid black;\n}\na.active\n{\nbackground-color:black;\n}");
-client.println("</style>");
+           client.println("<style>");
+           client.print("a{\ndisplay:inline-block;\nwidth:10px;\nheight:10px;\nborder:1px solid black;\n}\na.active\n{\nbackground-color:black;\n}");
+           client.println("</style>");
            client.println("</HEAD>");
            client.println("<BODY>");
            for(int n = 0;n<25;n++)
