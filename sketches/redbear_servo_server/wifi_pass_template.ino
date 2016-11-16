@@ -1,3 +1,3 @@
 //const char ssid[] = "";
-//char password[] = "";
+//const char password[] = "";
 
