@@ -54,6 +54,10 @@ uint8_t const SPI_QUARTER_SPEED = 2;
 //
 #ifndef SOFTWARE_SPI
 // hardware pin defs
+
+// include pins_arduino.h or variant.h depending on architecture, via Arduino.h
+#include <Arduino.h>
+
 /**
  * SD Chip Select pin
  *
@@ -61,15 +65,28 @@ uint8_t const SPI_QUARTER_SPEED = 2;
  * as an output by init().  An avr processor will not function as an SPI
  * master unless SS is set to output mode.
  */
+#ifndef SDCARD_SS_PIN
 /** The default chip select pin for the SD card is SS. */
-uint8_t const  SD_CHIP_SELECT_PIN = SS_PIN;
-// The following three pins must not be redefined for hardware SPI.
+uint8_t const  SD_CHIP_SELECT_PIN = SS;
+#else
+uint8_t const  SD_CHIP_SELECT_PIN = SDCARD_SS_PIN;
+#endif
+
+// The following three pins must not be redefined for hardware SPI,
+// so ensure that they are taken from pins_arduino.h or variant.h, depending on architecture.
+#ifndef SDCARD_MOSI_PIN
 /** SPI Master Out Slave In pin */
-uint8_t const  SPI_MOSI_PIN = MOSI_PIN;
+uint8_t const  SPI_MOSI_PIN = MOSI;
 /** SPI Master In Slave Out pin */
-uint8_t const  SPI_MISO_PIN = MISO_PIN;
+uint8_t const  SPI_MISO_PIN = MISO;
 /** SPI Clock pin */
-uint8_t const  SPI_SCK_PIN = SCK_PIN;
+uint8_t const  SPI_SCK_PIN = SCK;
+#else
+uint8_t const  SPI_MOSI_PIN = SDCARD_MOSI_PIN;
+uint8_t const  SPI_MISO_PIN = SDCARD_MISO_PIN;
+uint8_t const  SPI_SCK_PIN = SDCARD_SCK_PIN;
+#endif
+
 /** optimize loops for hardware SPI */
 #ifndef USE_SPI_LIB
 #define OPTIMIZE_HARDWARE_SPI
