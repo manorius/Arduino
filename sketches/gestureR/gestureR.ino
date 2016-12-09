@@ -75,6 +75,7 @@ strip.setBrightness(0);
 
 int ledNum = 0;
 
+
 void loop()
 {
   ////Getting Gesture Data from Sensor
