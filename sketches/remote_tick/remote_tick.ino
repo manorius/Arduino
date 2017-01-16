@@ -14,7 +14,7 @@ int led2 = D7;
 // your network name also called SSID
 char ssid[] = "digitalnihilist";
 // your network password
-char password[] = "manorius1234";
+char password[] = "pop12345";
 // your network key Index number (needed only for WEP)
 int keyIndex = 0;
 String readString;
