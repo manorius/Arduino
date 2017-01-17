@@ -13,11 +13,11 @@ signed short ret;
 short act_os_d[4]={
   0x03FF, 0x03FF, 0x03FF, 0x03FF};
 
-#define PIN 6
+#define PIN 12
 
-#define NUM_LEDS 12
+#define NUM_LEDS 11
 
-#define BRIGHTNESS 255
+#define BRIGHTNESS 50
 
 int brightness = 0;
 // Generally, you should use "unsigned long" for variables that hold time
@@ -134,7 +134,7 @@ void loop()
 
   Serial.println(raw_data[0]);
 
-  if(raw_data[0]>14)
+  if(/*raw_data[0]>14*/false)
   {
 
     if(!runningFade) fadeState = true;
