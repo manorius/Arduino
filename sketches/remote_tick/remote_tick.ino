@@ -12,7 +12,7 @@ int led1 = D8;
 int led2 = D7;
 
 // your network name also called SSID
-char ssid[] = "digitalnihilist";
+char ssid[] = "soundswarm";
 // your network password
 char password[] = "pop12345";
 // your network key Index number (needed only for WEP)
